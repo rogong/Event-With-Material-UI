@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, SyntheticEvent } from 'react';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -12,15 +12,18 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
-import { IEvent } from '../../../../app/layout/models/activity';
+import { IEvent } from '../../../../app/models/activity';
 import { green } from '@material-ui/core/colors';
-
+import CircularProgress from '@material-ui/core/CircularProgress';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import ButtonComponent from '../../../../app/layout/ButtonIndicator';
 
 interface IProps {
   events: IEvent[];
-  selectEvent: (id: string) => void | null;
-  deleteEvent: (id: string) => void;
+  selectEvent: ( id: string) => void;
+  deleteEvent: (event: SyntheticEvent<HTMLButtonElement> ,id: string) => void;
+  submitting: boolean;
+  target: string;
 }
 const useStyles = makeStyles((theme: any) =>
   createStyles({
@@ -59,35 +62,41 @@ const useStyles = makeStyles((theme: any) =>
       backgroundColor: red[900],
     },
     floatRight: {
-      float: "right",
-    }
+      float: 'right',
+    },
   })
 );
 
-const EventList: React.FC<IProps> = ({ events, selectEvent, deleteEvent }) => {
+const EventList: React.FC<IProps> = ({
+  events,
+  selectEvent,
+  deleteEvent,
+  submitting,
+  target
+}) => {
   const classes = useStyles();
+  const [progress, setProgress] = React.useState();
   return (
     <Fragment>
-      {events.map((event) => (
-        <Card style={{ marginBottom: '5em' }} key={event.id}>
+      {events.map((eventx) => (
+        <Card style={{ marginBottom: '5em' }} key={eventx.id}>
           <CardHeader
             action={
               <IconButton aria-label="settings">
                 <MoreVertIcon />
-                
               </IconButton>
             }
-            title={<Button color="secondary">{event.title}</Button>}
-            subheader={event.date}
+            title={<Button color="secondary">{eventx.title}</Button>}
+            subheader={eventx.date}
           />
 
           <CardContent>
             <Typography variant="body2" color="textSecondary" component="p">
-              {event.description}
+              {eventx.description}
             </Typography>
 
             <Typography variant="subtitle1" component="div">
-              {event.venue}; {event.city}
+              {eventx.venue}; {eventx.city}
             </Typography>
           </CardContent>
           <CardActions disableSpacing>
@@ -95,6 +104,7 @@ const EventList: React.FC<IProps> = ({ events, selectEvent, deleteEvent }) => {
               className={classes.button}
               variant="outlined"
               color="secondary"
+             
             >
               Free
             </Button>
@@ -105,27 +115,33 @@ const EventList: React.FC<IProps> = ({ events, selectEvent, deleteEvent }) => {
               <ShareIcon />
             </IconButton>
 
-         
+            <div style={{ float: 'right' }}>
+              <IconButton
+                aria-label="delete"
+                className={classes.margin}
+                style={{ color: green[500] }}
+                onClick={() => selectEvent(eventx.id)}
+              >
+          
+               <VisibilityIcon fontSize="small" />
+              </IconButton>
 
-           <div style={{ float: "right" }}>
-           <IconButton aria-label="delete" 
-            className={classes.margin}
-            style={{ color: green[500] }}
-            onClick={() => selectEvent(event.id)} >
-            
-              <VisibilityIcon fontSize="small" />
-            </IconButton>
-
-            <IconButton 
-            aria-label="delete" 
+        
+            <ButtonComponent  
+            color="primary"  
+            type="submit"
+            name={eventx.id}
+            aria-label="delete"
             style={{ color: red[900] }}
             className={classes.margin}
-            onClick={() => deleteEvent(event.id)} >
-            
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-           </div>
-
+            onClick={(e: SyntheticEvent<HTMLButtonElement>) => deleteEvent(e, eventx.id)}
+            loading={target === eventx.id && submitting}
+         />
+         
+                    
+                 
+             
+            </div>
           </CardActions>
         </Card>
       ))}

@@ -13,7 +13,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import { IEvent } from '../../app/layout/models/activity';
+import { IEvent } from '../../app/models/activity';
 import Button from '@material-ui/core/Button';
 
 

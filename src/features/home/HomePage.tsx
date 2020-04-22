@@ -7,7 +7,7 @@ import Footer from '../../features/footer/Footer';
 import { HomeBanner } from '../../features/home/HomeBanner';
 import { HomeEvent } from '../../features/home/HomeEvents';
 import { EventDetails } from '../../features/events/details/EventDetails';
-import { IEvent } from '../../app/layout/models/activity';
+import { IEvent } from '../../app/models/activity';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

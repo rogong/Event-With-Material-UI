@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, SyntheticEvent } from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Paper, Container } from '@material-ui/core';
-import { IEvent } from '../../../../app/layout/models/activity';
+import { IEvent } from '../../../../app/models/activity';
 import { EventForm } from '../../form/EventForm';
 import EventList from './EventList';
 import DashboardEventDetails from './DashboardEventDetails';
 import { NavBar } from '../../../nav/NavBar';
+import agent from '../../../../app/api/agent';
+import LoadingComponentLinear from '../../../../app/layout/LoadingComponentLinear';
+
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -24,10 +26,13 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const EventDashboard = () => {
+  const classes = useStyles();
   const [events, setEvents] = useState<IEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
-
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false); 
+  const [target, setTarget] = useState('');
 
   const handleOpenCreateForm = () => {
     setSelectedEvent(null);
@@ -39,55 +44,68 @@ const EventDashboard = () => {
   };
 
   const handleCreateEvent = (event: IEvent) => {
+    setSubmitting(true);
+  agent.Events.create(event).then(()=>{
     setEvents([...events, event]);
     setSelectedEvent(event);
     setEditMode(false);
+  }).then(()=>setSubmitting(false))
   }
 
   const handleEditEvent = (event: IEvent) => {
+    setSubmitting(true);
+  agent.Events.update(event).then(()=>{
     setEvents([...events.filter(a => a.id !== event.id), event]);
     setSelectedEvent(event);
     setEditMode(false);
+  }).then(()=>setSubmitting(false))
   }
 
-  const handleDeleteEvent = (id: string) => {
-    setEvents([...events.filter(e => e.id !== id)]);
+  const handleDeleteEvent = (event: SyntheticEvent<HTMLButtonElement>, id: string) => {
+    setSubmitting(true);
+   agent.Events.delete(id).then(()=>{
+  setTarget(event.currentTarget.name);
+  setEvents([...events.filter(e => e.id !== id)]);
+    }).then(()=>setSubmitting(false))
   }
 
   useEffect(() => {
-    axios.get<IEvent[]>('http://localhost:5000/api/activities')
+    agent.Events.list()
     .then((res) => {
       let events: IEvent[] = [];
-      res.data.forEach(event => {
+      res.forEach(event => {
         event.date = event.date.split('.')[0];
         events.push(event);
       })
-      setEvents(res.data);
-    });
+      setEvents(events);
+    }).then(()=>setLoading(false));
   }, []);
 
-  const classes = useStyles();
+  if(loading) return <LoadingComponentLinear />;
+ 
 
   return (
     <div className={classes.root}>
           <NavBar openCreateForm={handleOpenCreateForm} />
       <Container>
         <Grid container spacing={4} style={{ marginTop: '5em' }}>
-          <Grid item xs={12} sm={12} md={6}>
+          <Grid item xs={12} sm={12} md={7}>
             <EventList 
             events={events} 
             selectEvent={handleSelectEvent}
             deleteEvent={handleDeleteEvent}
+            submitting={submitting}
+            target={target}
              />
           </Grid>
 
-          <Grid item xs={12} sm={12} md={6}>
+          <Grid item xs={12} sm={12} md={5}>
             {selectedEvent && !editMode && (
               <DashboardEventDetails
                 event={selectedEvent}
                 setEditMode={setEditMode}
                 setSelectedEvent={setSelectedEvent}
-               
+              
               />
             )}
             {editMode && (
@@ -98,6 +116,7 @@ const EventDashboard = () => {
                 event={selectedEvent!} 
                 createEvent={handleCreateEvent}
                 editEvent={handleEditEvent}
+                submitting={submitting}
                 />
               </Paper>
             )}

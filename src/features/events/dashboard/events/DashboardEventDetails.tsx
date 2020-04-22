@@ -14,7 +14,7 @@ import ShareIcon from '@material-ui/icons/Share';
 import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
-import { IEvent } from '../../../../app/layout/models/activity';
+import { IEvent } from '../../../../app/models/activity';
 
 interface IProps {
   event: IEvent;
@@ -83,7 +83,7 @@ const DashboardEventDetails: React.FC<IProps> = ({
       />
       <CardMedia
         className={classes.media}
-        image="/img/resize-event-image-1566027311-cJGQU.jpg"
+        image={`/assets/categoryImages/${event.category}.jpg`}
         title="Paella dish"
       />
       <CardContent>

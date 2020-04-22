@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import { IEvent } from '../../app/layout/models/activity';
+import { IEvent } from '../../app/models/activity';
 import EventCard from './EventCard';
 
 interface IProps {

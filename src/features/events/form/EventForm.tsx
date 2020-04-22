@@ -2,8 +2,11 @@ import React, { useState, FormEvent, Fragment } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { IEvent } from '../../../app/layout/models/activity';
+import { IEvent } from '../../../app/models/activity';
 import {v4 as uuid} from 'uuid';
+import button from 'semantic-ui-react';
+import ButtonComponent from '../../../app/layout/ButtonIndicator';
+import ButtonIndicatorEdit from '../../../app/layout/ButtonIndicatorEdit';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -22,6 +25,7 @@ interface IProps {
   event: IEvent;
   editEvent: (event: IEvent) => void;
   createEvent: (event: IEvent) => void;
+  submitting: boolean;
 }
 
 export const EventForm: React.FC<IProps> = ({
@@ -29,6 +33,7 @@ export const EventForm: React.FC<IProps> = ({
   event: initialState,
   createEvent,
   editEvent,
+  submitting,
 }) => {
   const classes = useStyles();
   const initializeForm = () => {
@@ -55,6 +60,7 @@ export const EventForm: React.FC<IProps> = ({
     console.log(eventx);
   };
   const handleSubmit = (event: any) => {
+    submitting=true;
     event.preventDefault();
     if (eventx.id.length === 0) {
       let newEvent = {
@@ -65,6 +71,7 @@ export const EventForm: React.FC<IProps> = ({
     } else {
       editEvent(eventx);
     }
+    submitting=false;
   };
   return (
     <Fragment>
@@ -139,14 +146,14 @@ export const EventForm: React.FC<IProps> = ({
           fullWidth
         />
 
-        <Button
-          className={classes.button}
-          variant="outlined"
-          color="primary"
-          type="submit"
-        >
-          Submit
-        </Button>
+           <ButtonIndicatorEdit 
+            color="primary"  
+            aria-label="submit"
+            loading={submitting}
+            type="submit"
+            variant="out"
+         />
+      
         <Button
           className={classes.button}
           variant="outlined"
