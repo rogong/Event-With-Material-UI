@@ -1,13 +1,13 @@
-import React, { useState, useEffect} from 'react';
-import axios from 'axios';
+import React, {useContext, useEffect}  from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { NavBar } from '../../features/nav/NavBar';
-import Container from '@material-ui/core/Container';
 import Footer from '../../features/footer/Footer';
 import { HomeBanner } from '../../features/home/HomeBanner';
-import { HomeEvent } from '../../features/home/HomeEvents';
-import { EventDetails } from '../../features/events/details/EventDetails';
-import { IEvent } from '../../app/models/activity';
+import EventCard from './EventCard';
+import { observer } from 'mobx-react-lite';
+import EventStore from '../../app/store/eventStore';
+import { Container } from '@material-ui/core';
+import LoadingComponentLinear from '../../app/layout/LoadingComponentLinear';
+
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,33 +25,33 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 const HomePage = () => {
-  const [events, setEvents] = useState<IEvent[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
-  
-  const handleSelectedEvent = (id:string) => {
-     setSelectedEvent(events.filter(e => e.id == id )[0])
-  };
+
 
   const classes = useStyles();
-  useEffect(() => {
-    axios.get<IEvent[]>('http://localhost:5000/api/activities').then((res) => {
-      setEvents(res.data);
-    });
-  }, []);
 
+  
+  const eventStore = useContext(EventStore);
+  //const {eventsByDate: events, selectEvent} = eventStore;
+
+  useEffect(() => {
+    eventStore.loadEvents();
+  }, [eventStore]);
+
+  if(eventStore.loadingInitial) return <LoadingComponentLinear  />;
   return (
     <div className={classes.root}>
   
       <HomeBanner/>
   
-      <Container  >
-        <HomeEvent events={events} selectEvent={handleSelectedEvent} />
+   <Container>
+   <EventCard  />
+   </Container>
        
-      </Container>
+      
       
     <Footer/>
     </div>
   );
 };
 
-export default HomePage;
+export default observer(HomePage);

@@ -1,12 +1,11 @@
-import React, { useState, FormEvent, Fragment } from 'react';
+import React, { useState, FormEvent, Fragment, useContext } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { IEvent } from '../../../app/models/activity';
-import {v4 as uuid} from 'uuid';
-import button from 'semantic-ui-react';
-import ButtonComponent from '../../../app/layout/ButtonIndicator';
+import { v4 as uuid } from 'uuid';
 import ButtonIndicatorEdit from '../../../app/layout/ButtonIndicatorEdit';
+import EventStore from '../../../app/store/eventStore';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -21,21 +20,16 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface IProps {
-  setEditMode: (editMode: boolean) => void;
   event: IEvent;
-  editEvent: (event: IEvent) => void;
-  createEvent: (event: IEvent) => void;
-  submitting: boolean;
 }
 
-export const EventForm: React.FC<IProps> = ({
-  setEditMode,
-  event: initialState,
-  createEvent,
-  editEvent,
-  submitting,
-}) => {
+export const EventForm: React.FC<IProps> = ({ event: initialState }) => {
   const classes = useStyles();
+
+  //Store
+  const eventStore = useContext(EventStore);
+  const { createEvent, editEvent, submitting, cancelFormOpen } = eventStore;
+
   const initializeForm = () => {
     if (initialState) {
       return initialState;
@@ -60,18 +54,16 @@ export const EventForm: React.FC<IProps> = ({
     console.log(eventx);
   };
   const handleSubmit = (event: any) => {
-    submitting=true;
     event.preventDefault();
     if (eventx.id.length === 0) {
       let newEvent = {
         ...eventx,
-        id: uuid()
+        id: uuid(),
       };
       createEvent(newEvent);
     } else {
       editEvent(eventx);
     }
-    submitting=false;
   };
   return (
     <Fragment>
@@ -146,19 +138,19 @@ export const EventForm: React.FC<IProps> = ({
           fullWidth
         />
 
-           <ButtonIndicatorEdit 
-            color="primary"  
-            aria-label="submit"
-            loading={submitting}
-            type="submit"
-            variant="out"
-         />
-      
+        <ButtonIndicatorEdit
+          color="primary"
+          aria-label="submit"
+          loading={submitting}
+          type="submit"
+          variant="outlined"
+        />
+
         <Button
           className={classes.button}
           variant="outlined"
           color="default"
-          onClick={() => setEditMode(false)}
+          onClick={cancelFormOpen}
         >
           Cancel
         </Button>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { makeStyles,createStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
@@ -13,14 +13,12 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import { IEvent } from '../../app/models/activity';
 import Button from '@material-ui/core/Button';
+import EventStore from '../../app/store/eventStore';
+import Grid from '@material-ui/core/Grid';
+import  { observer } from 'mobx-react-lite';
 
 
-interface IProp {
-  event: IEvent;
-  selectEvent: (id: string) => void;
-}
 const useStyles = makeStyles((theme: any) =>
   createStyles({
     card: {
@@ -50,17 +48,29 @@ const useStyles = makeStyles((theme: any) =>
       backgroundColor: red[500],
     },
     button: { margin: theme.spacing(2) },
+    toolbarMargin: theme.mixins.toolbar,
   })
 );
-const EventCard: React.FC<IProp> = ({ event, selectEvent}) => {
+const EventCard: React.FC = () => {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+  const Container = (props: any) => <Grid container {...props} />;
+  const Item = (props: any) => <Grid item xs={12} sm={6} md={4} {...props} />;
+
+  const eventStore = useContext(EventStore);
+  const {eventsByDate: events, selectEvent} = eventStore;
+
   return (
-    <Card>
+    
+     <Container spacing={3} className={classes.toolbarMargin}>
+        {events.map((event) => (
+          <Item key={event.id}>
+            <Card >
       <CardHeader
         
         action={
@@ -77,7 +87,7 @@ const EventCard: React.FC<IProp> = ({ event, selectEvent}) => {
       />
       <CardMedia
         className={classes.media}
-        image="/img/resize-event-image-1566027311-cJGQU.jpg"
+        image={`/assets/categoryImages/${event.category}.jpg`}
         title="Paella dish"
       />
       <CardContent>
@@ -116,6 +126,10 @@ const EventCard: React.FC<IProp> = ({ event, selectEvent}) => {
         </IconButton>
       </CardActions>
     </Card>
+          </Item>
+        ))}
+      </Container>
+    
   );
 };
-export default EventCard;
+export default observer(EventCard);

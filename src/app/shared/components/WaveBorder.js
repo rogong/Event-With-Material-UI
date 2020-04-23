@@ -60,7 +60,6 @@ function WaveBorder(props) {
 }
 
 WaveBorder.propTypes = {
-  lowerColor: PropTypes.string.isRequired,
   upperColor: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   animationNegativeDelay: PropTypes.number.isRequired

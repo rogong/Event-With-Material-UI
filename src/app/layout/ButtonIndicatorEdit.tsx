@@ -1,6 +1,6 @@
 import React from 'react';
 import { CircularProgress, Button } from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
+
 
 function ButtonIndicatorEdit(props:any) {
   const {  onClick, loading, ...other } = props;

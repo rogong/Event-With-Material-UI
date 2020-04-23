@@ -5,10 +5,6 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      flexGrow: 1,
-      marginLeft: 0
-    },
     paper: {
       padding: theme.spacing(0),
       color: theme.palette.text.secondary,
@@ -25,7 +21,7 @@ export const HomeBanner = () => {
     const classes = useStyles();
     return (
         <div>
-        <Grid  spacing={0}>
+        <Grid>
           <Grid item xs="auto" sm="auto" md="auto">
             <Paper className={classes.paper}>
               <img alt="complex" src="/img/9851328675.jpg" height="500" width="1480"/>
