@@ -11,27 +11,28 @@ import ShareIcon from '@material-ui/icons/Share';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
 import { green } from '@material-ui/core/colors';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import ButtonComponent from '../../../../app/layout/ButtonIndicator';
 import { observer } from 'mobx-react-lite';
 import EventStore from '../../../../app/store/eventStore';
 import EventListStyles from './styles/eventListStyles';
+import { Link } from 'react-router-dom';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 
 const EventList: React.FC = () => {
   const classes = EventListStyles();
 
   const eventStore = useContext(EventStore);
   const {
-    eventsByDate,
-    selectEvent,
+    eventsByDate:events,
     deleteEvent,
     submitting,
     target,
+    selectEvent
   } = eventStore;
 
   return (
     <Fragment>
-      {eventsByDate.map((eventx) => (
+      {events.map((eventx) => (
         <Card style={{ marginBottom: '5em' }} key={eventx.id}>
           <CardHeader
             action={
@@ -68,14 +69,21 @@ const EventList: React.FC = () => {
             </IconButton>
 
             <div style={{ float: 'right' }}>
-              <IconButton
-                aria-label="delete"
-                className={classes.margin}
-                style={{ color: green[500] }}
-                onClick={() => selectEvent(eventx.id)}
+              
+              
+              <IconButton   onClick={() => selectEvent(eventx.id)}
+               aria-label="view"
+               className={classes.margin}
+               style={{ color: green[500] }}
               >
-                <VisibilityIcon fontSize="small" />
+             <Link to={`/events/${eventx.id}`}><VisibilityIcon fontSize="small" /> </Link>
+
               </IconButton>
+              
+             
+               
+            
+            
 
               <ButtonComponent
                 color="primary"

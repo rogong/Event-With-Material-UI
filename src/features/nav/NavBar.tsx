@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
+import  Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
@@ -14,16 +15,18 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
-import  { observer } from 'mobx-react-lite';
-import EventStore from '../../app/store/eventStore';
+import { observer } from 'mobx-react-lite';
 import NavStyles from '../nav/NavStyles';
+import { NavLink } from 'react-router-dom';
+import HomeIcon from '@material-ui/icons/Home';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
+import ListIcon from '@material-ui/icons/List';
+import HowToRegIcon from '@material-ui/icons/HowToReg';
+import CreateIcon from '@material-ui/icons/CreateNewFolder';
 
 
 
- const NavBar: React.FC = () => {
-//Store
-  const eventStore = useContext(EventStore);
-  const {openCreateForm} = eventStore;
+const NavBar: React.FC = () => {
 
   const classes = NavStyles();
 
@@ -110,9 +113,36 @@ import NavStyles from '../nav/NavStyles';
     </Menu>
   );
 
+  const menuItems = [
+    {
+      link: '/',
+      name: 'Home',
+      icon: <HomeIcon className="text-white" />,
+    },
+    {
+      link: '/events',
+      name: 'Events',
+      icon: <ListIcon className="text-white" />,
+    },
+    {
+      link: '/create',
+      name: 'Create',
+      icon: <CreateIcon  className="text-white" />,
+    },
+    {
+      name: 'Register',
+      // onClick: openRegisterDialog,
+      icon: <HowToRegIcon className="text-white" />,
+    },
+    {
+      name: 'Login',
+      //  onClick: openLoginDialog,
+      icon: <LockOpenIcon className="text-white" />,
+    },
+  ];
   return (
     <div className={classes.grow}>
-     <AppBar position="fixed">
+      <AppBar position="fixed">
         <Toolbar>
           <IconButton
             edge="start"
@@ -139,26 +169,42 @@ import NavStyles from '../nav/NavStyles';
               inputProps={{ 'aria-label': 'search' }}
             />
           </div>
-          <Button
-            aria-controls="customized-menu"
-            aria-haspopup="true"
-            variant="contained"
-            color="primary"
-            className={classes.spacing}
-            
-          >
-                 Events
-          </Button>
-          <Button
-            aria-controls="customized-menu"
-            aria-haspopup="true"
-            variant="contained"
-            color="secondary"
-            className={classes.spacing}
-            onClick={openCreateForm}
-          >
-            Create
-          </Button>
+          <Hidden smDown>
+          {menuItems.map((element) => {
+            if (element.link) {
+              return (
+                <NavLink key={element.name} to={element.link}>
+                  <Button
+      
+                    aria-controls="customized-menu"
+                    aria-haspopup="true"
+                    variant="text"
+                    color='secondary'
+                    size="small"
+                    className={classes.spacing}>
+                    {element.icon}
+                    {element.name}
+                  </Button>
+                </NavLink>
+              );
+            }
+            return (
+              <Button
+              aria-controls="customized-menu"
+              aria-haspopup="true"
+              variant="outlined"
+              color="inherit"
+              size="small"
+              className={classes.spacing}
+               
+                key={element.name}
+              >
+                {element.icon}
+                {element.name}
+              </Button>
+            );
+          })}
+</Hidden>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             <IconButton aria-label="show 4 new mails" color="inherit">
@@ -189,22 +235,18 @@ import NavStyles from '../nav/NavStyles';
               aria-haspopup="true"
               onClick={handleMobileMenuOpen}
               color="inherit"
+              
             >
               <MoreIcon />
             </IconButton>
+
           </div>
         </Toolbar>
       </AppBar>
       {renderMobileMenu}
       {renderMenu}
     </div>
-      
   );
-
 };
-
-    
-
-
 
 export default observer(NavBar);

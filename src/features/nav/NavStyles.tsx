@@ -12,6 +12,10 @@ const NavStyles = makeStyles((theme: Theme) =>
     grow: {
       flexGrow: 1,
     },
+    menuButtonText: {
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: theme.typography.h6.fontWeight
+    },
     menuButton: {
       marginRight: theme.spacing(2),
     },
@@ -77,6 +81,9 @@ const NavStyles = makeStyles((theme: Theme) =>
     tabContent: {
       padding: theme.spacing(2)
       },
+      noDecoration: {
+        textDecoration: "none !important"
+      }
   })
 );
 

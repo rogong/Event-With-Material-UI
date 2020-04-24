@@ -7,10 +7,8 @@ configure({enforceActions: 'always'})
 
 class EventStore {
     @observable eventRegistry = new Map();
-    @observable events: IEvent[] = [];
-    @observable selectedEvent: IEvent | undefined;
+    @observable event: IEvent | null = null;
     @observable loadingInitial = false;
-    @observable editMode = false;
     @observable submitting = false;
     @observable target = '';
 
@@ -40,6 +38,31 @@ class EventStore {
       
     };
 
+   @action loadEvent = async (id: string) => {
+     let event =  this.getEvent(id);
+     if(event){
+         this.event = event;
+     }else{
+        this.loadingInitial = true;
+        try {
+            event = await agent.Events.details(id);
+            runInAction('getting event', () => {
+               this.event = event;
+               this.loadingInitial = false;
+            })
+        } catch (error) {
+            runInAction('get event error', () => {
+                this.loadingInitial = false;
+            })
+            console.log(error)
+        }
+     }
+   }
+
+   getEvent = (id: string) => {
+      return this.eventRegistry.get(id);
+   }
+
     @action createEvent = async (event: IEvent) => {
         this.submitting = true;
         try {
@@ -47,7 +70,6 @@ class EventStore {
           runInAction('creating event', ()=>{
                // this.events.push(event);
            this.eventRegistry.set(event.id, event);
-           this.editMode = false;
            this.submitting = false;
           })
         } catch (error) {
@@ -64,8 +86,7 @@ class EventStore {
           await agent.Events.update(event);
         runInAction('Editing event',()=>{
             this.eventRegistry.set(event.id, event);
-            this.selectedEvent = event;
-            this.editMode = false;
+            this.event = event;
             this.submitting = false;
         })
 
@@ -97,28 +118,14 @@ class EventStore {
         }   
 
     }
-
-    @action openCreateForm = () => {  
-        this.selectedEvent = undefined;
-        this.editMode = true;
-    }
-
-    @action openEditForm = (id: string) => {
-      this.selectedEvent  = this.eventRegistry.get(id);
-       this.editMode = true;
-    }
-
-    @action cancelselectedEvent = () => {
-        this.selectedEvent = undefined;
-    }
-
-    @action cancelFormOpen = () => {
-        this.editMode = false;
+   
+    @action clearEvent = () => {
+        this.event = null;
     }
 
     @action selectEvent = (id: string) => {
-        this.selectedEvent =  this.eventRegistry.get(id);   // this.events.find(e => e.id === id);
-        this.editMode = false;
+        this.event =  this.eventRegistry.get(id);   // this.events.find(e => e.id === id);
+       
     }
 
  

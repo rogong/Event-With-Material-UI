@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -15,23 +15,33 @@ import Button from '@material-ui/core/Button';
 import EventStore from '../../../../app/store/eventStore';
 import { observer } from 'mobx-react-lite';
 import eventDetailStyles from './styles/eventDetailStyles';
+import { RouteComponentProps, Link } from 'react-router-dom';
 
 
-const DashboardEventDetails: React.FC = () => {
+interface DetailParams {
+  id: string
+}
+
+const DashboardEventDetails: React.FC<RouteComponentProps<DetailParams>> = ({match, history}) => {
 
   //Open Store .................................
   const classes = eventDetailStyles();
   const eventStore = useContext(EventStore);
 
   const {
-    selectedEvent: event,
-    openEditForm,
-    cancelselectedEvent,
+    event,
+    loadEvent,
   } = eventStore;
 
   //Close Store .................................
+  useEffect(() => {
+    loadEvent(match.params.id)
+  }, [loadEvent,match.params.id])
+  
+
+
   return (
-    <Card style={{ marginBottom: '5em' }}>
+    <Card style={{ marginTop: '5em' }}>
       <CardHeader
         avatar={
           <Avatar aria-label="recipe" className={classes.avatar}>
@@ -75,20 +85,21 @@ const DashboardEventDetails: React.FC = () => {
           <ShareIcon />
         </IconButton>
 
-        <IconButton
+        <Link to={`/manage/${event!.id}`}>
+        <IconButton 
           aria-label="delete"
           color="secondary"
           className={classes.margin}
-          onClick={() => openEditForm(event!.id)}
         >
           <EditIcon fontSize="small" />
         </IconButton>
+        </Link>
 
         <Button
           className={classes.button}
           variant="outlined"
           color="default"
-          onClick={cancelselectedEvent}
+          onClick={() => history.push('/events')}
         >
           Cancel
         </Button>

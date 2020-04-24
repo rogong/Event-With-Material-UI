@@ -1,4 +1,4 @@
-import React, { useState, FormEvent, Fragment, useContext } from 'react';
+import React, { useState, FormEvent, Fragment, useContext, useEffect } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -6,6 +6,9 @@ import { IEvent } from '../../../app/models/activity';
 import { v4 as uuid } from 'uuid';
 import ButtonIndicatorEdit from '../../../app/layout/ButtonIndicatorEdit';
 import EventStore from '../../../app/store/eventStore';
+import { RouteComponentProps } from 'react-router-dom';
+import  { observer }  from 'mobx-react-lite';
+import { Grid, Paper, Container } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -16,43 +19,58 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
     button: { margin: theme.spacing(2) },
+    paper: {
+      padding: theme.spacing(2),
+      color: theme.palette.text.secondary,
+      textAlign: 'center',
+    },
   })
 );
 
-interface IProps {
-  event: IEvent;
+interface DetailParams {
+  id: string;
 }
 
-export const EventForm: React.FC<IProps> = ({ event: initialState }) => {
+ const EventForm: React.FC<RouteComponentProps<DetailParams>> = ({ match, history}) => {
   const classes = useStyles();
-
   //Store
   const eventStore = useContext(EventStore);
-  const { createEvent, editEvent, submitting, cancelFormOpen } = eventStore;
+  const { 
+    createEvent, 
+    editEvent, 
+    submitting, 
+    loadEvent,
+    clearEvent,
+    event:initialFormState
+  } = eventStore;
 
-  const initializeForm = () => {
-    if (initialState) {
-      return initialState;
-    } else {
-      return {
-        id: '',
-        title: '',
-        category: '',
-        description: '',
-        date: '',
-        city: '',
-        venue: '',
-      };
+
+  const [eventx, setEvent] = useState<IEvent>({
+    id: '',
+    title: '',
+    category: '',
+    description: '',
+    date: '',
+    city: '',
+    venue: '',
+  });
+  
+  useEffect(() => {
+    if(match.params.id && eventx.id.length === 0) {
+      loadEvent(match.params.id).then(
+        () => initialFormState && setEvent(initialFormState)
+      );
     }
-  };
-  const [eventx, setEvent] = useState<IEvent>(initializeForm);
-  const handleInputChange = (
-    event: FormEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.currentTarget;
-    setEvent({ ...eventx, [name]: value });
-    console.log(eventx);
-  };
+   return () => {
+     clearEvent();
+   }
+  },[loadEvent,
+     match.params.id,
+     clearEvent,
+     initialFormState,
+     eventx.id.length
+    ]);
+
   const handleSubmit = (event: any) => {
     event.preventDefault();
     if (eventx.id.length === 0) {
@@ -60,14 +78,25 @@ export const EventForm: React.FC<IProps> = ({ event: initialState }) => {
         ...eventx,
         id: uuid(),
       };
-      createEvent(newEvent);
+      createEvent(newEvent).then(() => history.push(`/events/${newEvent.id}`));
     } else {
-      editEvent(eventx);
+      editEvent(eventx).then(() => history.push(`/events/${eventx.id}`));
     }
   };
+
+  const handleInputChange = (
+    event: FormEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.currentTarget;
+    setEvent({ ...eventx, [name]: value });
+  };
+
   return (
-    <Fragment>
-      <form onSubmit={handleSubmit}>
+    <Container>
+        <Grid container spacing={4} style={{ marginTop: '5em' }}>
+          <Grid item xs={12} sm={12} md={7}>
+          <Fragment >
+      <form onSubmit={handleSubmit} >
         <TextField
           onChange={handleInputChange}
           name="title"
@@ -150,11 +179,25 @@ export const EventForm: React.FC<IProps> = ({ event: initialState }) => {
           className={classes.button}
           variant="outlined"
           color="default"
-          onClick={cancelFormOpen}
+          onClick={() => history.push('/events')}
         >
           Cancel
         </Button>
       </form>
     </Fragment>
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={5}>
+            
+              <Paper className={classes.paper}>
+                <h1>Ads</h1>
+              </Paper>
+          
+          </Grid>
+        </Grid>
+      </Container>
+   
   );
 };
+
+export default observer(EventForm);
