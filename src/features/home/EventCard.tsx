@@ -17,6 +17,7 @@ import EventStore from '../../app/store/eventStore';
 import Grid from '@material-ui/core/Grid';
 import  { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
+import Avatar from '@material-ui/core/Avatar';
 
 
 const useStyles = makeStyles((theme: any) =>
@@ -73,6 +74,11 @@ const EventCard: React.FC = () => {
             <Card >
         
              <CardHeader
+               avatar={
+                <Avatar aria-label="recipe" className={classes.avatar}>
+                  R
+                </Avatar>
+              }
         
         title={
           <Button  color="secondary" onClick={() => selectEvent(event.id)}>

@@ -1,39 +1,74 @@
-import React from 'react';
-import Paper from '@material-ui/core/Paper';
+import React, { useContext, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
+import EventStore from '../../../app/store/eventStore';
+import { observer } from 'mobx-react-lite';
+import { RouteComponentProps } from 'react-router-dom';
+import  EventDetailHeader  from './EventDetailHeader';
+import  EventDetailSidebar  from './EventDetailSidebar';
+import  EventDetailInfo  from './EventDetailInfo';
+import { EventDetailChat } from './EventDetailChat';
+import LoadingComponentLinear from '../../../app/layout/LoadingComponentLinear';
+import { Container } from '@material-ui/core';
 
 
+interface DetailParams {
+  id: string
+}
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
     },
     paper: {
-      padding: theme.spacing(0),
+      padding: theme.spacing(2),
+      textAlign: 'center',
       color: theme.palette.text.secondary,
-      width: 1280,
-      height: 500,
-      backgroundImage: '/img/event-image-1566027094-7P6Iq.jpg',
     },
-
-    toolbarMargin: theme.mixins.toolbar,
-  })
+  }),
 );
-export const EventDetails = () => {
-  const classes = useStyles();
+
+const EventDetails:React.FC<RouteComponentProps<DetailParams>> = ({match}) => {
+    //Open Store .................................
+    const classes = useStyles();
+    const eventStore = useContext(EventStore);
+  
+    const {
+      event,
+      loadEvent,
+      loadingInitial
+    } = eventStore;
+  
+    //Close Store .................................
+    useEffect(() => {
+      loadEvent(match.params.id)
+    }, [loadEvent,match.params.id])
+
+    if(loadingInitial || !event) return <LoadingComponentLinear />;
+    
   return (
     <div className={classes.root}>
-    
+    <Container>
       <Grid container spacing={4}>
-        <Grid item xs={6}>
-          <Paper className={classes.paper}>xs=6</Paper>
+
+        <Grid item xs={12} sm={12} lg={7}>
+        <EventDetailHeader event={event!}/>
+        <EventDetailInfo event={event} />
+        <EventDetailChat />
         </Grid>
-        <Grid item xs={6}>
-          <Paper className={classes.paper}>xs=6</Paper>
-        </Grid>
-      </Grid>
+
+        <Grid item xs={12} sm={12} lg={1}></Grid>
+
+        <Grid item xs={12} sm={12} lg={4}>
+        <EventDetailSidebar />
       
+      </Grid>
+
+      </Grid>
+      </Container>
     </div>
   );
-};
+  };
+
+
+export default observer(EventDetails)

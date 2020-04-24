@@ -5,6 +5,7 @@ import 'typeface-roboto';
 import {createBrowserHistory} from 'history';
 import { BrowserRouter } from 'react-router-dom';
 import ScrollToTop from './app/layout/ScrollToTop';
+import 'semantic-ui-css/semantic.min.css'
 
 export const history = createBrowserHistory();
 

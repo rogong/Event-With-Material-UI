@@ -12,9 +12,26 @@ class EventStore {
     @observable submitting = false;
     @observable target = '';
 
+
+    @computed get eventListByDate() {
+        return this.getEventListByDate(Array.from(this.eventRegistry.values()));
+    } 
+
+    getEventListByDate(events: IEvent[]) {
+        const sortedEvents = events.sort(
+            (a, b) => Date.parse(a.date) - Date.parse(b.date)
+        )
+        return Object.entries(sortedEvents.reduce((events, event) => {
+            const date = event.date.split('T')[0];
+            events[date] = events[date] ? [...events[date], event] : [event];
+            return events;
+        }, {} as {[key: string]: IEvent[]}));
+    }
+
     @computed get eventsByDate() {
         return Array.from(this.eventRegistry.values()).sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
     } 
+
 
     @action loadEvents = async () => {
         this.loadingInitial = true;

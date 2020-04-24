@@ -4,6 +4,10 @@ import { red } from '@material-ui/core/colors';
 
 const eventDetailStyles = makeStyles((theme: any) =>
 createStyles({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
   card: {
     maxWidth: 400,
   },
