@@ -35,7 +35,7 @@ const EventList: React.FC = () => {
   return (
     <Fragment>
       {eventListByDate.map(([group, events]) => (
-        <Fragment>
+        <Fragment key={group}>
           <Fab
             variant="extended"
             size="small"
@@ -65,14 +65,15 @@ const EventList: React.FC = () => {
                     <MoreVertIcon />
                   </IconButton>
                 }
-                title={<Button color="secondary">{eventx.title}</Button>}
+                title={<Link to={`/events/${eventx.id}`}>
+                  <Button color="secondary">{eventx.title}</Button></Link>}
                 subheader='Hosted By Oluseyi'
               />
 
               <CardContent>
             
             <Typography variant="subtitle1" component="div">
-            <DateIcon /> {eventx.date} @  <PlaceIcon/> {eventx.venue}; {eventx.city}
+            <PlaceIcon/>  {eventx.venue}, {eventx.city}
                 </Typography>
               </CardContent>
               <Paper variant="outlined" square >

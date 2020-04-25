@@ -18,12 +18,14 @@ import Grid from '@material-ui/core/Grid';
 import  { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
+import {format} from 'date-fns';
 
 
 const useStyles = makeStyles((theme: any) =>
   createStyles({
     card: {
       maxWidth: 400,
+     
     },
     content: {
       marginTop: theme.spacing(1),
@@ -50,6 +52,7 @@ const useStyles = makeStyles((theme: any) =>
     },
     button: { margin: theme.spacing(2) },
     toolbarMargin: theme.mixins.toolbar,
+    
   })
 );
 const EventCard: React.FC = () => {
@@ -86,7 +89,7 @@ const EventCard: React.FC = () => {
           </Button>
         }
    
-        subheader={event.date}
+        subheader={format(event.date!, 'eeee do MMMM')}
       />
       <CardMedia
         className={classes.media}

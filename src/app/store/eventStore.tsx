@@ -19,17 +19,18 @@ class EventStore {
 
     getEventListByDate(events: IEvent[]) {
         const sortedEvents = events.sort(
-            (a, b) => Date.parse(a.date) - Date.parse(b.date)
+            (a, b) =>a.date.getTime() - b.date.getTime() 
         )
         return Object.entries(sortedEvents.reduce((events, event) => {
-            const date = event.date.split('T')[0];
+            const date = event.date.toISOString().split('T')[0];
             events[date] = events[date] ? [...events[date], event] : [event];
             return events;
         }, {} as {[key: string]: IEvent[]}));
     }
 
     @computed get eventsByDate() {
-        return Array.from(this.eventRegistry.values()).sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+        return Array.from(this.eventRegistry.values()).sort(
+            (a, b) =>a.date.getTime() - b.date.getTime() );
     } 
 
 
@@ -39,7 +40,7 @@ class EventStore {
         const events = await agent.Events.list();
         runInAction('loading events', () => {
             events.forEach(event => {
-                event.date = event.date.split('.')[0];
+                event.date = new Date(event.date);
                // this.events.push(event);
                this.eventRegistry.set(event.id, event);
               })
@@ -59,14 +60,18 @@ class EventStore {
      let event =  this.getEvent(id);
      if(event){
          this.event = event;
+         return event;
      }else{
         this.loadingInitial = true;
         try {
             event = await agent.Events.details(id);
             runInAction('getting event', () => {
+            event.date = new Date(event.date)
                this.event = event;
+               this.eventRegistry.set(event.id, event);
                this.loadingInitial = false;
             })
+            return event;
         } catch (error) {
             runInAction('get event error', () => {
                 this.loadingInitial = false;

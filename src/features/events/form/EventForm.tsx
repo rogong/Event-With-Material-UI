@@ -1,14 +1,20 @@
-import React, { useState, FormEvent, Fragment, useContext, useEffect } from 'react';
+import React, { useState, Fragment, useContext, useEffect } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import { IEvent } from '../../../app/models/activity';
 import { v4 as uuid } from 'uuid';
-import ButtonIndicatorEdit from '../../../app/layout/ButtonIndicatorEdit';
 import EventStore from '../../../app/store/eventStore';
 import { RouteComponentProps } from 'react-router-dom';
 import  { observer }  from 'mobx-react-lite';
 import { Grid, Paper, Container } from '@material-ui/core';
+import { Form as FinalForm, Field } from "react-final-form";
+import { Segment, Form, Button} from "semantic-ui-react";
+import TextAreaInput from "../../../app/shared/form/TextAreaInput";
+import SelectInput from "../../../app/shared/form/SelectInput";
+import { category } from "../../../app/shared/options/categoryOptions";
+import DateInput from "../../../app/shared/form/DateInput";
+import { combineDateAndTime } from "../../../app/shared/util/util";
+import {combineValidators, isRequired, hasLengthGreaterThan, composeValidators} from 'revalidate';
+import  {EventFormValues}  from '../../../app/models/activity';
+import TextInput from '../../../app/shared/form/TextInput';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,163 +33,151 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+const validate = combineValidators({
+  title: isRequired({message: 'The title is required'}),
+  category: isRequired('Category'),
+  description: composeValidators(
+    isRequired('Description'),
+    hasLengthGreaterThan(4)({message: 'Description needs to be at least 5 characters'})
+  )(),
+  city: isRequired('City'),
+  venue: isRequired('Venue'),
+  date: isRequired('Date'),
+  time: isRequired('Time')
+})
+
 interface DetailParams {
   id: string;
 }
 
- const EventForm: React.FC<RouteComponentProps<DetailParams>> = ({ match, history}) => {
+const EventForm: React.FC<RouteComponentProps<DetailParams>> = ({ 
+  match, 
+  history
+}) => {
   const classes = useStyles();
   //Store
   const eventStore = useContext(EventStore);
-  const { 
-    createEvent, 
-    editEvent, 
+  const {  
     submitting, 
     loadEvent,
-    clearEvent,
-    event:initialFormState
+    createEvent,
+    editEvent
   } = eventStore;
 
-
-  const [eventx, setEvent] = useState<IEvent>({
-    id: '',
-    title: '',
-    category: '',
-    description: '',
-    date: '',
-    city: '',
-    venue: '',
-  });
+  const [event, setEvent] = useState(new EventFormValues());
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
-    if(match.params.id && eventx.id.length === 0) {
-      loadEvent(match.params.id).then(
-        () => initialFormState && setEvent(initialFormState)
-      );
+    if (match.params.id) {
+      setLoading(true);
+      loadEvent(match.params.id)
+        .then(event => setEvent(new EventFormValues(event)))
+        .finally(() => setLoading(false));
     }
-   return () => {
-     clearEvent();
-   }
-  },[loadEvent,
-     match.params.id,
-     clearEvent,
-     initialFormState,
-     eventx.id.length
-    ]);
+  }, [loadEvent, match.params.id]);
 
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
-    if (eventx.id.length === 0) {
-      let newEvent = {
-        ...eventx,
-        id: uuid(),
-      };
-      createEvent(newEvent).then(() => history.push(`/events/${newEvent.id}`));
-    } else {
-      editEvent(eventx).then(() => history.push(`/events/${eventx.id}`));
-    }
+
+  const handleFinalFormSubmit = (values: any) => {
+    const dateAndTime = combineDateAndTime(values.date, values.time);
+    const { date, time, ...event } = values;
+    event.date = dateAndTime;
+    if (!event.id) {
+            let newEvent = {
+              ...event,
+              id: uuid()
+            };
+            createEvent(newEvent);
+          } else {
+            editEvent(event);
+          }
   };
 
-  const handleInputChange = (
-    event: FormEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.currentTarget;
-    setEvent({ ...eventx, [name]: value });
-  };
+ 
 
   return (
     <Container>
         <Grid container spacing={4} style={{ marginTop: '5em' }}>
           <Grid item xs={12} sm={12} md={7}>
           <Fragment >
-      <form onSubmit={handleSubmit} >
-        <TextField
-          onChange={handleInputChange}
-          name="title"
-          variant="outlined"
-          margin="dense"
-          id="title"
-          label="title"
-          required
-          value={eventx.title}
-          fullWidth
-        />
-
-        <TextField
-          onChange={handleInputChange}
-          name="category"
-          variant="outlined"
-          margin="dense"
-          id="category"
-          label="Category"
-          required
-          value={eventx.category}
-          fullWidth
-        />
-
-        <TextField
-          onChange={handleInputChange}
-          name="city"
-          variant="outlined"
-          margin="dense"
-          id="city"
-          label="City"
-          value={eventx.city}
-          required
-          fullWidth
-        />
-        <TextField
-          onChange={handleInputChange}
-          name="venue"
-          variant="outlined"
-          margin="dense"
-          id="venue"
-          label="Venue"
-          required
-          value={eventx.venue}
-          fullWidth
-        />
-        <TextField
-          onChange={handleInputChange}
-          name="date"
-          variant="outlined"
-          margin="dense"
-          id="date"
-          value={eventx.date}
-          type="datetime-local"
-          fullWidth
-        />
-        <TextField
-          onChange={handleInputChange}
-          name="description"
-          variant="outlined"
-          margin="dense"
-          id="description"
-          label="Description"
-          value={eventx.description}
-          multiline
-          rows={4}
-          required
-          fullWidth
-        />
-
-        <ButtonIndicatorEdit
-          color="primary"
-          aria-label="submit"
-          loading={submitting}
-          type="submit"
-          variant="outlined"
-        />
-
-        <Button
-          className={classes.button}
-          variant="outlined"
-          color="default"
-          onClick={() => history.push('/events')}
-        >
-          Cancel
-        </Button>
-      </form>
+          <Segment clearing >
+          <FinalForm
+          validate={validate}
+            initialValues={event}
+            onSubmit={handleFinalFormSubmit}
+            render={({ handleSubmit, invalid, pristine }) => (
+              <Form onSubmit={handleSubmit} loading={loading}>
+                <Field
+                  name="title"
+                  placeholder="Title"
+                  value={event.title}
+                  component={TextInput}
+                />
+                <Field
+              
+                  component={TextAreaInput}
+                  name="description"
+                  placeholder="Description"
+                  value={event.description}
+                  rows={3}
+                />
+                <Field
+                  component={SelectInput}
+                  options={category}
+                  name="category"
+                  placeholder="Category"
+                  value={event.category}
+                />
+                <Form.Group widths="equal">
+                  <Field
+                    component={DateInput}
+                    name="date"
+                    date={true}
+                    placeholder="Date"
+                    value={event.date}
+                  />
+                  <Field
+                    component={DateInput}
+                    name="time"
+                    time={true}
+                    placeholder="Time"
+                    value={event.date}
+                  />
+                </Form.Group>
+                <Field
+                  component={TextInput}
+                  name="city"
+                  placeholder="City"
+                  value={event.city}
+                />
+                <Field
+                  component={TextInput}
+                  name="venue"
+                  placeholder="Venue"
+                  value={event.venue}
+                />
+                <Button
+                  loading={submitting}
+                  disabled={loading || invalid || pristine}
+                  floated="right"
+                  positive
+                  type="submit"
+                  content="Submit"
+                />
+                <Button
+                  onClick={
+                    event.id ?
+                    () => history.push(`/events/${event.id}`) :
+                    () => history.push("/events")}
+                  disabled={loading}
+                  floated="right"
+                  type="button"
+                  content="Cancel"
+                />
+              </Form>
+            )}
+          />
+        </Segment>
+     
     </Fragment>
           </Grid>
 

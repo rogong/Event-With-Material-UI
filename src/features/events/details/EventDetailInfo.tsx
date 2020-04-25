@@ -4,6 +4,7 @@ import DateIcon from '@material-ui/icons/DateRange';
 import PlaceIcon from '@material-ui/icons/Place';
 import InfoIcon from '@material-ui/icons/Info';
 import { IEvent } from '../../../app/models/activity';
+import { format } from 'date-fns';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,7 +34,10 @@ const classes = useStyles();
         </ListItem>
         <Divider />
         <ListItem button divider>
-        <DateIcon color='secondary'/>  <ListItemText primary={event.date} />
+        <DateIcon color='secondary'/> 
+         <ListItemText 
+         primary={format(event.date!, 'eeee do MMMM')} 
+         secondary= {format(event.date!, 'h:mm a')} />
         </ListItem>
         <ListItem button>
          <PlaceIcon color='secondary'/> 

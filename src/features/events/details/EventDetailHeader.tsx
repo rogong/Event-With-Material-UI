@@ -16,10 +16,10 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import JoinIcon from '@material-ui/icons/AddCircle';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
 
-
-
-const EventDetailHeader: React.FC<{event: IEvent }> = ({event}) => {
+const EventDetailHeader: React.FC<{ event: IEvent }> = ({ event }) => {
   const classes = eventDetailStyles();
   const [open, setOpen] = React.useState(false);
   const handleClose = () => {
@@ -30,7 +30,6 @@ const EventDetailHeader: React.FC<{event: IEvent }> = ({event}) => {
   };
   return (
     <Card style={{ marginTop: '5em' }}>
-     
       <CardHeader
         avatar={
           <Avatar aria-label="recipe" className={classes.avatar}>
@@ -43,34 +42,32 @@ const EventDetailHeader: React.FC<{event: IEvent }> = ({event}) => {
           </IconButton>
         }
         title={<Button color="secondary">{event.title}</Button>}
-        subheader= {<Fab
-        variant="extended"
-        size="small"
-        color="primary"
-        aria-label="add"
-        className={classes.margin}
-      >
-        <DateIcon />
-        {event.date} 
-        </Fab> } 
+        subheader={
+          <Fab
+            variant="extended"
+            size="small"
+            color="primary"
+            aria-label="add"
+            className={classes.margin}
+          >
+            <DateIcon />
+            {format(event.date!, 'eeee do MMMM')}
+          </Fab>
+        }
       />
-    
+
       <CardMedia
         className={classes.media}
         image={`/assets/categoryImages/${event.category}.jpg`}
         title="Paella dish"
       />
       <CardContent>
-        <Button variant='text' color='primary'>
-        {`posted by ${event.city}`}
+        <Button variant="text" color="primary">
+          {`posted by ${event.city}`}
         </Button>
       </CardContent>
       <CardActions disableSpacing>
-        <Button
-          className={classes.button}
-          variant="outlined"
-          color="secondary"
-        >
+        <Button className={classes.button} variant="outlined" color="secondary">
           Free
         </Button>
 
@@ -78,34 +75,32 @@ const EventDetailHeader: React.FC<{event: IEvent }> = ({event}) => {
           className={classes.button}
           variant="text"
           color="secondary"
-          size='small' 
-          onClick={handleToggle}  
+          size="small"
+          onClick={handleToggle}
         >
-         Attend <JoinIcon/>
+          Attend <JoinIcon />
         </Button>
 
         <Button
           className={classes.button}
           variant="text"
           color="default"
-          size='small'  
-          onClick={handleToggle} 
+          size="small"
+          onClick={handleToggle}
         >
-          Cancel <CancelIcon/>
+          Cancel <CancelIcon />
         </Button>
 
-        <Button
-          className={classes.button}
-          variant="contained"
-          color="secondary"
-          size='small'   
-          onClick={handleToggle}  
-        >
-       Manage 
-
-        </Button>
-
-       
+        <Link to={`/manage/${event.id}`}>
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="secondary"
+            size="small"
+          >
+            Manage
+          </Button>
+        </Link>
       </CardActions>
       <Backdrop className={classes.backdrop} open={open} onClick={handleClose}>
         <CircularProgress color="inherit" />
