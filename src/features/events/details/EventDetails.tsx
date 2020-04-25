@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const EventDetails:React.FC<RouteComponentProps<DetailParams>> = ({match}) => {
+const EventDetails:React.FC<RouteComponentProps<DetailParams>> = ({match,history}) => {
     //Open Store .................................
     const classes = useStyles();
     const eventStore = useContext(EventStore);
@@ -41,11 +41,13 @@ const EventDetails:React.FC<RouteComponentProps<DetailParams>> = ({match}) => {
   
     //Close Store .................................
     useEffect(() => {
-      loadEvent(match.params.id)
-    }, [loadEvent,match.params.id])
+      loadEvent(match.params.id);
+    }, [loadEvent,match.params.id,history])
 
     if(loadingInitial || !event) return <LoadingComponentLinear />;
     
+    if(!event)
+      return <h2>Event not found</h2>
   return (
     <div className={classes.root}>
     <Container>

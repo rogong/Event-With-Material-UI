@@ -20,7 +20,7 @@ axios.interceptors.response.use(undefined, error => {
         toast.error('Network error - make sure API is running!');
     }
     const {status, data, config} = error.response;
-    if(error.response.status === 404){
+    if(status === 404){
         history.push('/notfound');
     }
     if(status === 400 && config.method === 'get' && data.errors.hasOwnProperty('id')){

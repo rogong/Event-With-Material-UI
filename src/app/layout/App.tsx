@@ -9,6 +9,8 @@ import EventStore from '../store/eventStore';
 import LoadingComponentLinear from './LoadingComponentLinear';
 import { SignIn } from '../../features/auth/signin';
 import EventDetails  from '../../features/events/details/EventDetails';
+import NotFound from './NotFound';
+import { ToastContainer } from 'react-toastify';
 
 
 const App: React.FC<RouteComponentProps> = ({location}) => {
@@ -23,7 +25,7 @@ const App: React.FC<RouteComponentProps> = ({location}) => {
  if(loadingInitial) return <LoadingComponentLinear />;
   return (
     <div>
-      
+     <ToastContainer position='top-right' /> 
     <NavBar />  
       <Switch>
         <Route exact path="/" component={HomePage} />
@@ -31,6 +33,7 @@ const App: React.FC<RouteComponentProps> = ({location}) => {
         <Route path="/events/:id" component={EventDetails} />
         <Route key={location.key}  path={['/create', '/manage/:id']} component={EventForm} />
         <Route path='/signin' component={SignIn} />
+        <Route component={NotFound} />
       </Switch>
     </div>
   );
