@@ -11,7 +11,6 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
 import { green } from '@material-ui/core/colors';
 import { observer } from 'mobx-react-lite';
-import EventStore from '../../../../app/store/eventStore';
 import EventListStyles from './styles/eventListStyles';
 import { Link } from 'react-router-dom';
 import VisibilityIcon from '@material-ui/icons/Visibility';
@@ -21,15 +20,18 @@ import Fab from '@material-ui/core/Fab';
 import CardMedia from '@material-ui/core/CardMedia';
 import Paper from '@material-ui/core/Paper';
 import PlaceIcon from '@material-ui/icons/Place';
+import { RootStoreContext } from '../../../../app/store/rootStore';
+import { format } from 'date-fns';
 
 const EventList: React.FC = () => {
   const classes = EventListStyles();
-
-  const eventStore = useContext(EventStore);
+  const rootStore = useContext(RootStoreContext);
+  const {isLoggedIn, user}  = rootStore.userStore;
+ 
   const {
     selectEvent,
     eventListByDate,
-  } = eventStore;
+  } = rootStore.eventStore;
 
 
   return (
@@ -51,10 +53,10 @@ const EventList: React.FC = () => {
               <CardHeader
              
                 avatar={
-                  <Avatar aria-label="recipe" className={classes.avatar}>
+                  <Avatar aria-label="recipe">
                     <CardMedia
                       className={classes.media}
-                      image="/assets/user.png"
+                      image='/assets/user.png'
                       title="user name"
                     />
                    

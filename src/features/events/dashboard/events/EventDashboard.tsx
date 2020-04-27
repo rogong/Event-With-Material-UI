@@ -3,8 +3,7 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Paper, Container } from '@material-ui/core';
 import EventList from './EventList';
 import  { observer } from 'mobx-react-lite';
-//import LoadingComponentLinear from '../../../../app/layout/LoadingComponentLinear';
-//import EventStore from '../../../../app/store/eventStore';
+
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -22,16 +21,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const EventDashboard = () => {
-  const classes = useStyles();
-/*  const eventStore = useContext(EventStore);
- const {loadingInitial } = eventStore;
-
- useEffect(() => {
-  eventStore.loadEvents();
-}, [eventStore]);
-
- if(loadingInitial) return <LoadingComponentLinear />; */
-    
+  const classes = useStyles();  
   return (
     <div className={classes.root}>
        

@@ -1,10 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
@@ -12,13 +8,21 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { Form as FinalForm, Field } from 'react-final-form';
+import { Form, Button } from 'semantic-ui-react';
+import TextInput from '../../app/shared/form/TextInput';
+import { RootStoreContext } from '../../app/store/rootStore';
+import { IUserFormValues } from '../../app/models/user';
+import { FORM_ERROR } from 'final-form';
+import { combineValidators, isRequired } from 'revalidate';
+import ErrorMessage from '../../app/shared/form/ErrorMessage';
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
+      <Link color="inherit" href="/">
+        NextEvent
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -28,7 +32,7 @@ function Copyright() {
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(3),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -39,15 +43,25 @@ const useStyles = makeStyles((theme) => ({
   },
   form: {
     width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(1),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
 }));
 
-export const SignUp = () => {
+const validate = combineValidators({
+  email: isRequired('email'),
+  username: isRequired('username'),
+  displayName: isRequired('displayName'),
+  password: isRequired('password'),
+});
+
+const SignUp = () => {
   const classes = useStyles();
+  //Store
+  const rootStore = useContext(RootStoreContext);
+  const { register } = rootStore.userStore;
 
   return (
     <Container component="main" maxWidth="xs">
@@ -59,82 +73,74 @@ export const SignUp = () => {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} noValidate>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                autoComplete="fname"
-                name="firstName"
-                variant="outlined"
-                required
-                fullWidth
-                id="firstName"
-                label="First Name"
-                autoFocus
+        <FinalForm
+          onSubmit={(values: IUserFormValues) =>
+            register(values).catch((error) => ({
+              [FORM_ERROR]: error,
+            }))
+          }
+          validate={validate}
+          render={({
+            handleSubmit,
+            submitting,
+            submitError,
+            invalid,
+            pristine,
+            dirtySinceLastSubmit,
+          }) => (
+            <Form onSubmit={handleSubmit} error>
+              <Field
+                name="username"
+                component={TextInput}
+                placeholder="Username"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
-                id="lastName"
-                label="Last Name"
-                name="lastName"
-                autoComplete="lname"
+              <Field
+                name="displayName"
+                component={TextInput}
+                placeholder="Display Name"
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
+
+              <Field name="email" component={TextInput} placeholder="Email" />
+              <Field
                 name="password"
-                label="Password"
+                component={TextInput}
+                placeholder="Password"
                 type="password"
-                id="password"
-                autoComplete="current-password"
               />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={<Checkbox value="allowExtraEmails" color="primary" />}
-                label="I want to receive inspiration, marketing promotions and updates via email."
+              {submitError && !dirtySinceLastSubmit && (
+                <ErrorMessage
+                  error={submitError}
+                  text=''
+                />
+              )}
+              <Button
+                disabled={(invalid && !dirtySinceLastSubmit) || pristine}
+                loading={submitting}
+                content="Sign up"
+                fluid
+                color="blue"
               />
-            </Grid>
-          </Grid>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Sign Up
-          </Button>
-          <Grid container justify="flex-end">
-            <Grid item>
-              <Link href="#" variant="body2">
-                Already have an account? Sign in
-              </Link>
-            </Grid>
-          </Grid>
-        </form>
+              <Grid container>
+                <Grid item xs>
+                  <Link href="#" variant="body2">
+                    Forgot password?
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <Link href="/signin" variant="body2">
+                    {'You have an account? Sign In'}
+                  </Link>
+                </Grid>
+              </Grid>
+            </Form>
+          )}
+        />
       </div>
-      <Box mt={5}>
+      <Box mt={8}>
         <Copyright />
       </Box>
     </Container>
   );
-}
+};
+
+export default SignUp;

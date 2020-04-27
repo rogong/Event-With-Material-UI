@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { IEvent } from '../models/activity';
 import { history } from '../..';
 import { toast } from 'react-toastify';
+import { IUser, IUserFormValues } from '../models/user';
 //import { IUser, IUserFormValues } from '../models/user';
 
 
@@ -53,13 +54,13 @@ const Events = {
     delete: (id: string) => requests.del(`/activities/${id}`)
 }
 
-/*const User = {
+const User = {
     current: (): Promise<IUser> => requests.get('/user'),
     login: (user: IUserFormValues): Promise<IUser> => requests.post('/user/login', user),
     register: (user: IUserFormValues): Promise<IUser> => requests.post('/user/register', user),
 }
-*/
+
 export default {
     Events,
-   // User
+    User
 }

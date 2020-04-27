@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import  Hidden from '@material-ui/core/Hidden';
+import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
@@ -10,10 +10,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
-import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import MoreIcon from '@material-ui/icons/MoreVert';
+import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import { observer } from 'mobx-react-lite';
 import NavStyles from '../nav/NavStyles';
@@ -23,12 +22,15 @@ import LockOpenIcon from '@material-ui/icons/LockOpen';
 import ListIcon from '@material-ui/icons/List';
 import HowToRegIcon from '@material-ui/icons/HowToReg';
 import CreateIcon from '@material-ui/icons/CreateNewFolder';
-
-
+import { RootStoreContext } from '../../app/store/rootStore';
+import { SignIn } from '../auth/signin';
+import  SignUp  from '../auth/signup';
 
 const NavBar: React.FC = () => {
-
   const classes = NavStyles();
+  const rootStore = useContext(RootStoreContext);
+  const { user, isLoggedIn, logout } = rootStore.userStore;
+  const { openModal } = rootStore.modalStore;
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [
@@ -52,6 +54,10 @@ const NavBar: React.FC = () => {
     handleMobileMenuClose();
   };
 
+  const openLoginDialog = () => {
+    openModal('test');
+  };
+
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
@@ -69,47 +75,7 @@ const NavBar: React.FC = () => {
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-    </Menu>
-  );
-
-  const mobileMenuId = 'primary-search-account-menu-mobile';
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem>
-        <IconButton aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
+      <MenuItem onClick={logout}>Logout</MenuItem>
     </Menu>
   );
 
@@ -127,19 +93,11 @@ const NavBar: React.FC = () => {
     {
       link: '/create',
       name: 'Create',
-      icon: <CreateIcon  className="text-white" />,
+      icon: <CreateIcon className="text-white" />,
     },
-    {
-      name: 'Register',
-      // onClick: openRegisterDialog,
-      icon: <HowToRegIcon className="text-white" />,
-    },
-    {
-      name: 'Login',
-      //  onClick: openLoginDialog,
-      icon: <LockOpenIcon className="text-white" />,
-    },
+    
   ];
+
   return (
     <div className={classes.grow}>
       <AppBar position="fixed">
@@ -170,80 +128,110 @@ const NavBar: React.FC = () => {
             />
           </div>
           <Hidden smDown>
-          {menuItems.map((element) => {
-            if (element.link) {
+            
+            {menuItems.map((element) => {
+              if (element.link) {
+                return (
+                  <NavLink
+                    key={element.name}
+                    to={element.link}
+                    className={classes.spacing}
+                  >
+                    <Button
+                      aria-controls="customized-menu"
+                      aria-haspopup="true"
+                      variant="text"
+                      className={classes.colorWhite}
+                      
+                    >
+                      {element.icon}
+                      {element.name}
+                    </Button>
+                  </NavLink>
+                );
+              }
               return (
-                <NavLink key={element.name} to={element.link}>
+                !isLoggedIn && (
                   <Button
-      
                     aria-controls="customized-menu"
                     aria-haspopup="true"
-                    variant="text"
-                    color='secondary'
+                    variant="outlined"
+                    color="inherit"
                     size="small"
-                    className={classes.spacing}>
+                    className={classes.spacing}
+                    key={element.name}
+                  >
                     {element.icon}
                     {element.name}
                   </Button>
-                </NavLink>
+                   
+                )
               );
-            }
-            return (
-              <Button
-              aria-controls="customized-menu"
-              aria-haspopup="true"
-              variant="outlined"
-              color="inherit"
-              size="small"
-              className={classes.spacing}
-               
-                key={element.name}
-              >
-                {element.icon}
-                {element.name}
-              </Button>
-            );
-          })}
-</Hidden>
-          <div className={classes.grow} />
-          <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-          </div>
-          <div className={classes.sectionMobile}>
-            <IconButton
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
               
-            >
-              <MoreIcon />
-            </IconButton>
+            })}
+          </Hidden>
+          <div className={classes.grow} />
+          {!isLoggedIn && (   
+            <div className={classes.sectionDesktop}>
+             <Button
+             aria-controls="customized-menu"
+             aria-haspopup="true"
+             variant="text"
+             className={classes.colorWhite}
+             size="small"
+             onClick={() => openModal(<SignUp />)}
+           >
+            <HowToRegIcon className="text-white" /> Register
+           </Button>
 
-          </div>
+           <Button
+             aria-controls="customized-menu"
+             aria-haspopup="true"
+             variant="text"
+             className={classes.colorWhite}
+             size="small"
+             onClick={() => openModal(<SignIn />)}
+           >
+            <LockOpenIcon className="text-white" /> Login
+           </Button>
+           </div>
+          )}
+          
+          {isLoggedIn && user && (
+            <div className={classes.sectionDesktop}>
+              <IconButton aria-label="show 4 new mails" color="inherit">
+                <Badge badgeContent={4} color="secondary">
+                  <MailIcon />
+                </Badge>
+              </IconButton>
+              <IconButton
+                aria-label="show 17 new notifications"
+                color="inherit"
+              >
+                <Badge badgeContent={17} color="secondary">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+              <IconButton
+                edge="end"
+                aria-label="account of current user"
+                aria-controls={menuId}
+                aria-haspopup="true"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+              >
+                {user.displayName}{' '}
+                <Avatar
+                  alt={user.displayName}
+                  src={user.image || '/assets/user.png'}
+                />
+              </IconButton>
+             
+            </div>
+          )}
         </Toolbar>
       </AppBar>
-      {renderMobileMenu}
+      
       {renderMenu}
     </div>
   );

@@ -1,7 +1,6 @@
 import React, { useState, Fragment, useContext, useEffect } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { v4 as uuid } from 'uuid';
-import EventStore from '../../../app/store/eventStore';
 import { RouteComponentProps } from 'react-router-dom';
 import  { observer }  from 'mobx-react-lite';
 import { Grid, Paper, Container } from '@material-ui/core';
@@ -15,6 +14,7 @@ import { combineDateAndTime } from "../../../app/shared/util/util";
 import {combineValidators, isRequired, hasLengthGreaterThan, composeValidators} from 'revalidate';
 import  {EventFormValues}  from '../../../app/models/activity';
 import TextInput from '../../../app/shared/form/TextInput';
+import { RootStoreContext } from '../../../app/store/rootStore';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -56,13 +56,13 @@ const EventForm: React.FC<RouteComponentProps<DetailParams>> = ({
 }) => {
   const classes = useStyles();
   //Store
-  const eventStore = useContext(EventStore);
+  const rootStore = useContext(RootStoreContext);
   const {  
     submitting, 
     loadEvent,
     createEvent,
     editEvent
-  } = eventStore;
+  } = rootStore.eventStore;
 
   const [event, setEvent] = useState(new EventFormValues());
   const [loading, setLoading] = useState(false);

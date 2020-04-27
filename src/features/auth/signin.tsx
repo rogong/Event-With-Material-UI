@@ -1,10 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
@@ -12,13 +8,21 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import {Form as FinalForm, Field } from 'react-final-form';
+import { Form, Button } from 'semantic-ui-react';
+import TextInput from '../../app/shared/form/TextInput';
+import { RootStoreContext } from '../../app/store/rootStore';
+import { IUserFormValues } from '../../app/models/user';
+import { FORM_ERROR } from 'final-form';
+import { combineValidators, isRequired } from 'revalidate';
+import ErrorMessage from '../../app/shared/form/ErrorMessage';
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
+      <Link color="inherit" href="/">
+        NextEvent
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -28,7 +32,7 @@ function Copyright() {
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(3),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -46,8 +50,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const validate = combineValidators({
+  email: isRequired('email'),
+  password: isRequired('password')
+})
+
 export const SignIn = () => {
   const classes = useStyles();
+  //Store 
+  const rootStore = useContext(RootStoreContext);
+  const { login } = rootStore.userStore;
 
   return (
     <Container component="main" maxWidth="xs">
@@ -59,42 +71,29 @@ export const SignIn = () => {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={classes.form} noValidate>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
-            autoFocus
+        <FinalForm
+        onSubmit={(values: IUserFormValues) => login(values).catch(error => ({
+          [FORM_ERROR]: error
+        }))}
+        validate={validate}
+        render={({ handleSubmit, submitting, form, submitError, invalid, pristine,dirtySinceLastSubmit }) => (
+          <Form onSubmit={handleSubmit} error>
+            <Field name='email' component={TextInput} placeholder='Email' />
+            <Field name='password' component={TextInput}  placeholder='Password' type='password'/>
+           {submitError && !dirtySinceLastSubmit && (
+             <ErrorMessage
+             error={submitError}
+             text='Invalid email or password'
+             />
+           )}
+              <Button
+            disabled={(invalid && !dirtySinceLastSubmit) || pristine}
+            loading={submitting}
+           
+            content="Sign in"
+            fluid
+            color='blue'
           />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Sign In
-          </Button>
           <Grid container>
             <Grid item xs>
               <Link href="#" variant="body2">
@@ -107,7 +106,11 @@ export const SignIn = () => {
               </Link>
             </Grid>
           </Grid>
-        </form>
+       
+            </Form>
+        )}
+            
+          />
       </div>
       <Box mt={8}>
         <Copyright />

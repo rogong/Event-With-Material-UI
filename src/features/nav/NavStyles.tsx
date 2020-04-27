@@ -83,7 +83,10 @@ const NavStyles = makeStyles((theme: Theme) =>
       },
       noDecoration: {
         textDecoration: "none !important"
-      }
+      },
+     colorWhite: {
+       color: '#ffffff'
+     } 
   })
 );
 

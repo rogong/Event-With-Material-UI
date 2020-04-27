@@ -12,10 +12,10 @@ import ShareIcon from '@material-ui/icons/Share';
 import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
-import EventStore from '../../../../app/store/eventStore';
 import { observer } from 'mobx-react-lite';
 import eventDetailStyles from './styles/eventDetailStyles';
 import { RouteComponentProps, Link } from 'react-router-dom';
+import { RootStoreContext } from '../../../../app/store/rootStore';
 
 
 interface DetailParams {
@@ -26,13 +26,10 @@ const DashboardEventDetails: React.FC<RouteComponentProps<DetailParams>> = ({mat
 
   //Open Store .................................
   const classes = eventDetailStyles();
-  const eventStore = useContext(EventStore);
+  const rootStore = useContext(RootStoreContext);
 
-  const {
-    event,
-    loadEvent,
-  } = eventStore;
-
+  const {loadEvent,event} = rootStore.eventStore;
+ 
   //Close Store .................................
   useEffect(() => {
     loadEvent(match.params.id)

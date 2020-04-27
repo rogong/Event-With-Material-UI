@@ -1,7 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import EventStore from '../../../app/store/eventStore';
 import { observer } from 'mobx-react-lite';
 import { RouteComponentProps } from 'react-router-dom';
 import  EventDetailHeader  from './EventDetailHeader';
@@ -10,6 +9,7 @@ import  EventDetailInfo  from './EventDetailInfo';
 import { EventDetailChat } from './EventDetailChat';
 import LoadingComponentLinear from '../../../app/layout/LoadingComponentLinear';
 import { Container } from '@material-ui/core';
+import { RootStoreContext } from '../../../app/store/rootStore';
 
 
 interface DetailParams {
@@ -31,13 +31,13 @@ const useStyles = makeStyles((theme: Theme) =>
 const EventDetails:React.FC<RouteComponentProps<DetailParams>> = ({match,history}) => {
     //Open Store .................................
     const classes = useStyles();
-    const eventStore = useContext(EventStore);
-  
+    const rootStore = useContext(RootStoreContext);
+     
     const {
       event,
       loadEvent,
       loadingInitial
-    } = eventStore;
+    } = rootStore.eventStore;
   
     //Close Store .................................
     useEffect(() => {

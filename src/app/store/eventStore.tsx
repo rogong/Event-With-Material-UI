@@ -1,11 +1,17 @@
 import {observable, action, computed, configure, runInAction} from 'mobx';
-import { createContext, SyntheticEvent } from 'react';
+import {  SyntheticEvent } from 'react';
 import { IEvent } from '../models/activity';
 import agent from '../api/agent';
+import { RootStore } from './rootStore';
 
 configure({enforceActions: 'always'})
 
-class EventStore {
+export default class EventStore {
+     rootStore: RootStore;
+     constructor(rootStore: RootStore) {
+         this.rootStore = rootStore;
+     }
+
     @observable eventRegistry = new Map();
     @observable event: IEvent | null = null;
     @observable loadingInitial = false;
@@ -153,4 +159,3 @@ class EventStore {
  
 }
 
-export default createContext(new EventStore())

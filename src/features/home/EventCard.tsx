@@ -13,12 +13,12 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from '@material-ui/core/Button';
-import EventStore from '../../app/store/eventStore';
 import Grid from '@material-ui/core/Grid';
 import  { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import {format} from 'date-fns';
+import { RootStoreContext } from '../../app/store/rootStore';
 
 
 const useStyles = makeStyles((theme: any) =>
@@ -66,8 +66,8 @@ const EventCard: React.FC = () => {
   const Container = (props: any) => <Grid container {...props} />;
   const Item = (props: any) => <Grid item xs={12} sm={6} md={3} {...props} />;
 
-  const eventStore = useContext(EventStore);
-  const {eventsByDate: events, selectEvent} = eventStore;
+  const rootStore = useContext(RootStoreContext);
+  const {eventsByDate: events, selectEvent} = rootStore.eventStore;
 
   return (
     
