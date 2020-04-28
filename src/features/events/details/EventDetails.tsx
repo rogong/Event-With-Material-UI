@@ -62,7 +62,7 @@ const EventDetails:React.FC<RouteComponentProps<DetailParams>> = ({match,history
         <Grid item xs={12} sm={12} lg={1}></Grid>
 
         <Grid item xs={12} sm={12} lg={4}>
-        <EventDetailSidebar />
+        <EventDetailSidebar attendees={event.attendees} />
       
       </Grid>
 

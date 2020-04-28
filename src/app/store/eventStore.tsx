@@ -3,6 +3,8 @@ import {  SyntheticEvent } from 'react';
 import { IEvent } from '../models/activity';
 import agent from '../api/agent';
 import { RootStore } from './rootStore';
+import { setEventProps, createAttendee } from '../shared/util/util';
+import { toast } from 'react-toastify';
 
 configure({enforceActions: 'always'})
 
@@ -17,8 +19,10 @@ export default class EventStore {
     @observable loadingInitial = false;
     @observable submitting = false;
     @observable target = '';
+    @observable loading = false;
 
 
+    
     @computed get eventListByDate() {
         return this.getEventListByDate(Array.from(this.eventRegistry.values()));
     } 
@@ -42,12 +46,13 @@ export default class EventStore {
 
     @action loadEvents = async () => {
         this.loadingInitial = true;
+       
        try {
         const events = await agent.Events.list();
         runInAction('loading events', () => {
             events.forEach(event => {
                 event.date = new Date(event.date);
-               // this.events.push(event);
+              setEventProps(event, this.rootStore.userStore.user!)
                this.eventRegistry.set(event.id, event);
               })
               this.loadingInitial = false;
@@ -72,7 +77,7 @@ export default class EventStore {
         try {
             event = await agent.Events.details(id);
             runInAction('getting event', () => {
-            event.date = new Date(event.date)
+                setEventProps(event, this.rootStore.userStore.user!)
                this.event = event;
                this.eventRegistry.set(event.id, event);
                this.loadingInitial = false;
@@ -95,6 +100,11 @@ export default class EventStore {
         this.submitting = true;
         try {
             await  agent.Events.create(event);
+            const attendee = createAttendee(this.rootStore.userStore.user!);
+            attendee.isHost = true;
+           let attendees = [];
+           attendees.push(attendee);
+           event.attendees = attendees;
           runInAction('creating event', ()=>{
                // this.events.push(event);
            this.eventRegistry.set(event.id, event);
@@ -144,9 +154,52 @@ export default class EventStore {
             
             console.log(error) 
         }   
-
     }
-   
+   @action attendEvent = async () => {
+       const attendee = createAttendee(this.rootStore.userStore.user!);
+       this.loading = true;
+       try {
+           await agent.Events.attend(this.event!.id);
+           runInAction(() => {
+            if(this.event) {
+                this.event.attendees.push(attendee);
+                this.event.isGoing = true;
+                this.eventRegistry.set(this.event.id, this.event);
+                this.loading = false;
+            }          
+           });
+       } catch (error) {
+        runInAction(() => {
+        this.loading = false;
+        })
+        toast.error('Problem signing up to event')
+       }
+      
+   };
+
+   @action cancelAttendance = async () => {
+    this.loading = true;
+       try {
+        await agent.Events.unattend(this.event!.id);
+        runInAction(() => {
+            if (this.event) {
+                this.event.attendees = this.event.attendees.filter(
+                    a => a.username !== this.rootStore.userStore.user!.username
+                );
+                this.event.isGoing = false;
+                this.eventRegistry.set(this.event.id, this.event);
+                this.loading = false;
+            }
+        })
+       } catch (error) {
+        runInAction(() => {
+            this.loading = false;
+            })
+            toast.error('Problem cancelling attendance')
+       }
+      
+   };
+
     @action clearEvent = () => {
         this.event = null;
     }

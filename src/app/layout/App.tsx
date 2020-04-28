@@ -5,7 +5,6 @@ import EventDashboard from '../../features/events/dashboard/events/EventDashboar
 import NavBar from '../../features/nav/NavBar';
 import EventForm from '../../features/events/form/EventForm';
 import { observer } from 'mobx-react-lite';
-import LoadingComponentLinear from './LoadingComponentLinear';
 import { SignIn } from '../../features/auth/signin';
 import EventDetails  from '../../features/events/details/EventDetails';
 import NotFound from './NotFound';
@@ -13,33 +12,29 @@ import { ToastContainer } from 'react-toastify';
 import { RootStoreContext } from '../store/rootStore';
 import ModalContainer from '../shared/modals/ModalContainer';
 import SignUp from '../../features/auth/signup';
+import LoadingComponent from './LoadingComponent';
 
 
 
 const App: React.FC<RouteComponentProps> = ({location}) => {
  //Store
- const rootStore = useContext(RootStoreContext);
+ const rootStore = useContext(RootStoreContext)
+   const {setAppLoaded, appLoaded, token} = rootStore.commonStore;
+   const {getUser} = rootStore.userStore;
 
- const {loadEvents,loadingInitial } = rootStore.eventStore;
- const {setAppLoaded, token, appLoaded} = rootStore.commonStore;
- const {getUser} = rootStore.userStore;
+   useEffect(() => {
+     if(token) {
+       getUser().finally(() => setAppLoaded())
+     }else{
+       setAppLoaded()
+     }
+   }, [getUser, setAppLoaded, token]);
 
- useEffect(() => {
-  loadEvents();
-}, [loadEvents]);
+   if(!appLoaded) return <LoadingComponent content='Loadin app...'/>
 
-useEffect (() => {
-  if(token) {
-    getUser().finally(() => setAppLoaded())
-  }else {
-    setAppLoaded()
-  }
-}, [getUser, setAppLoaded, token])
-
- if(!appLoaded) return <LoadingComponentLinear />;
   return (
     <div>
-        <ModalContainer/>
+     <ModalContainer/>
      <ToastContainer position='top-right' /> 
    
     <NavBar />  

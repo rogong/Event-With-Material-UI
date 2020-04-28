@@ -9,7 +9,7 @@ export const EventDetailChat = () => {
                     textAlign='center'
                     attached='top'
                     inverted
-                    color='pink'
+                    color='teal'
                     style={{ border: 'none' }}
                   >
                     <Header>Chat about this event</Header>

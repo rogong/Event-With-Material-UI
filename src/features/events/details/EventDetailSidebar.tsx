@@ -1,64 +1,58 @@
-import React, { Fragment } from 'react'
-import { Segment, Item, Label,List,Image } from 'semantic-ui-react';
+import React, { Fragment } from 'react';
+import { Segment, Item, Label, List, Image } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { IAttendee } from '../../../app/models/activity';
+import { observer } from 'mobx-react-lite';
 
-const EventDetailSidebar = () => {
-    return (
-        <div style={{marginTop:'5em'}}>
-              <Fragment>
-                <Segment
-                  textAlign='center'
-                  style={{ border: 'none' }}
-                  attached='top'
-                  secondary
-                  inverted
-                  color='violet'
-                >
-                  3 People Going
-                </Segment>
-                <Segment attached>
-                  <List relaxed divided>
-                    <Item style={{ position: 'relative' }}>
-                      <Label
-                        style={{ position: 'absolute' }}
-                        color='orange'
-                        ribbon='right'
-                      >
-                        Host
-                      </Label>
-                      <Image size='tiny' src={'/assets/user.png'} />
-                      <Item.Content verticalAlign='middle'>
-                        <Item.Header as='h3'>
-                          <Link to={`#`}>Bob</Link>
-                        </Item.Header>
-                        <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra>
-                      </Item.Content>
-                    </Item>
-          
-                    <Item style={{ position: 'relative' }}>
-                      <Image size='tiny' src={'/assets/user.png'} />
-                      <Item.Content verticalAlign='middle'>
-                        <Item.Header as='h3'>
-                          <Link to={`#`}>Tom</Link>
-                        </Item.Header>
-                        <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra>
-                      </Item.Content>
-                    </Item>
-          
-                    <Item style={{ position: 'relative' }}>
-                      <Image size='tiny' src={'/assets/user.png'} />
-                      <Item.Content verticalAlign='middle'>
-                        <Item.Header as='h3'>
-                          <Link to={`#`}>Sally</Link>
-                        </Item.Header>
-                      </Item.Content>
-                    </Item>
-                  </List>
-                </Segment>
-              </Fragment>
-        </div>
-    )
+interface IProps {
+  attendees: IAttendee[];
 }
 
+const EventDetailSidebar: React.FC<IProps> = ({ attendees }) => {
+  const isHost = false;
+  return (
+    <div style={{ marginTop: '5em' }}>
+      <Fragment>
+        <Segment
+          textAlign="center"
+          style={{ border: 'none' }}
+          attached="top"
+          secondary
+          inverted
+          color="violet"
+        >
+          {attendees.length} {attendees.length === 1 ? 'Person' : 'People'}{' '}
+          Going
+        </Segment>
+        <Segment attached>
+          <List relaxed divided>
+            {attendees.map((attendee) => (
+              <Item key={attendee.username} style={{ position: 'relative' }}>
+                {attendee.isHost && (
+                  <Label
+                    style={{ position: 'absolute' }}
+                    color="orange"
+                    ribbon="right"
+                  >
+                    Host
+                  </Label>
+                )}
+                <Image size="tiny" src={attendee.image || '/assets/user.png'} />
+                <Item.Content verticalAlign="middle">
+                  <Item.Header as="h3">
+                    <Link to={`/profile/${attendee.username}`}>
+                      {attendee.displayName}
+                    </Link>
+                  </Item.Header>
+                  <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra>
+                </Item.Content>
+              </Item>
+            ))}
+          </List>
+        </Segment>
+      </Fragment>
+    </div>
+  );
+};
 
-export default EventDetailSidebar;
+export default observer(EventDetailSidebar);

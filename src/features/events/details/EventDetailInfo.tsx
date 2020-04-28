@@ -1,54 +1,50 @@
+
 import React from 'react';
-import { List, ListItem, ListItemText, Divider, Paper, Theme, createStyles, makeStyles } from '@material-ui/core';
-import DateIcon from '@material-ui/icons/DateRange';
-import PlaceIcon from '@material-ui/icons/Place';
-import InfoIcon from '@material-ui/icons/Info';
+import { Segment, Grid, Icon } from 'semantic-ui-react';
+import {format} from 'date-fns';
+import { observer } from 'mobx-react-lite';
 import { IEvent } from '../../../app/models/activity';
-import { format } from 'date-fns';
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1,
-    },
-    paper: {
-      padding: theme.spacing(2),
-      textAlign: 'center',
-      color: theme.palette.text.secondary,
-    },
-  }),
-);
-
 
 const EventDetailInfo: React.FC<{event: IEvent}> = ({event}) => {
-const classes = useStyles();
-  return (
-    <div>
-      <Paper className={classes.paper} style={{marginTop:'2em'}}>
-      <List
-        component="nav"
-        aria-label="mailbox folders"
-      >
-        <ListItem button>
-         <InfoIcon color='secondary'/> <ListItemText primary={event.description} />
-        </ListItem>
-        <Divider />
-        <ListItem button divider>
-        <DateIcon color='secondary'/> 
-         <ListItemText 
-         primary={format(event.date!, 'eeee do MMMM')} 
-         secondary= {format(event.date!, 'h:mm a')} />
-        </ListItem>
-        <ListItem button>
-         <PlaceIcon color='secondary'/> 
-         <ListItemText primary={event.venue} />,
-         <ListItemText primary={event.city} />
-        </ListItem>
-       
-      </List>
-      </Paper>
-    </div>
-  );
-};
+    return (
+       <Segment.Group>
+             <Segment attached='top'>
+               <Grid>
+                 <Grid.Column width={1}>
+                   <Icon size='large' color='teal' name='info' />
+                 </Grid.Column>
+                 <Grid.Column width={15}>
+                   <p>{event.description}</p>
+                 </Grid.Column>
+               </Grid>
+             </Segment>
+             <Segment attached>
+               <Grid verticalAlign='middle'>
+                 <Grid.Column width={1}>
+                   <Icon name='calendar' size='large' color='teal' />
+                 </Grid.Column>
+                 <Grid.Column width={15}>
+                   <span>
+                     {format(event.date, 'eeee do MMMM')} @
+                     {format(event.date, 'h:mm a')}
+                   </span>
+                 </Grid.Column>
+               </Grid>
+             </Segment>
+             <Segment attached>
+               <Grid verticalAlign='middle'>
+                 <Grid.Column width={1}>
+                   <Icon name='marker' size='large' color='teal' />
+                 </Grid.Column>
+                 <Grid.Column width={11}>
+                   <span>{event.venue}, {event.city}</span>
+                 </Grid.Column>
+               </Grid>
+             </Segment>
+           </Segment.Group>
+    )
+}
 
-export default EventDetailInfo;
+
+
+export default observer(EventDetailInfo);
